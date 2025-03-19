@@ -1,0 +1,45 @@
+name: Sync librdkafka Repository
+
+on:
+  push:
+    branches:
+      - "**"
+#  schedule:
+#    # Run daily at midnight
+#    - cron: '0 0 * * *'
+#  workflow_dispatch:
+#    # Allow manual triggering
+
+jobs:
+  sync-repository:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork repository
+        uses: actions/checkout@v4
+        with:
+          repository: Trung-DV/librdkafka
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          
+      - name: Add upstream as remote
+        run: |
+          git remote add upstream https://github.com/confluentinc/librdkafka.git
+          
+      - name: Fetch tags from upstream
+        run: |
+          echo "Fetching tags from upstream..."
+          git fetch upstream --tags
+          
+      - name: List fetched tags
+        run: |
+          echo "Fetched tags:"
+          git tag -l
+          
+      - name: Push tags to origin
+        run: |
+          echo "Pushing fetched tags to origin..."
+          git push origin --tags
